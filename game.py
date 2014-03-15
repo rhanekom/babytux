@@ -7,6 +7,7 @@ from sprite import SpriteText
 from firework import FireWork
 import app
 
+import pyttsx
 import rabbyt
 import pyglet
 from pyglet import clock, font
@@ -25,6 +26,7 @@ class Main(app.App):
         self.ft = font.load('Helvetica', self.win.width/20)
         self.pos = 0,0
         self.key_buffer = []
+	self.speech_engine = pyttsx.init()
 
     def on_key_press(self, symbol, mods):
         self.key_buffer.append(symbol)
@@ -66,18 +68,21 @@ class Main(app.App):
         def tmp(dt):
             s.alpha = rabbyt.lerp(1.0, 0, dt=2)
             clock.schedule_once(lambda dt:self.world.objects.remove(s),2)
-        clock.schedule_once(tmp, 2)
+        
+	clock.schedule_once(tmp, 2)
+        self.speech_engine.say(string)
+	self.speech_engine.runAndWait()
 
     def make_shape_animations(self):
         x, y = get_xy_positions(self.win.width, self.win.height)
-        s = SImage(get_random_image(), x, y)
+        s = SImage(get_random_image(self), x, y)
+	self.speech_engine.runAndWait()
         s.sp.x = rabbyt.lerp(end=random.uniform(0, self.win.width), dt=1)
         s.sp.y = rabbyt.lerp(end=random.uniform(0, self.win.height), dt=1)
         s.sp.rot = rabbyt.lerp(start=0, end=360, dt=1)
         s.sp.scale = rabbyt.lerp(.25, 1, dt=1)
         self.world.objects.append(s)
         clock.schedule_once(lambda dt:self.world.objects.remove(s), 1)
-
 
     def on_mouse_press(self, x, y, button, mods):
         self.pos = x,y
@@ -112,13 +117,16 @@ def dst(x,y):
 def get_xy_positions(width, height):
     return random.uniform(0, width), random.uniform(0, height)
 
-def get_random_image():
+def get_random_image(self):
     choice = random.randint(1, 3)
     if choice == 1:
+	self.speech_engine.say('Circle')
         return 'res/circle.png'
     elif choice == 2:
+	self.speech_engine.say('Triangle')
         return 'res/triangle.png'
     else:
+	self.speech_engine.say('Sqaure')
         return 'res/square.png'
 
 if __name__=='__main__':
